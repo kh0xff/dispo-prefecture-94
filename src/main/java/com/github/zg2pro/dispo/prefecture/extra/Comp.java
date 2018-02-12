@@ -3,14 +3,25 @@ package com.github.zg2pro.dispo.prefecture.extra;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +40,31 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class Comp {
 
-    public boolean checkAvailibility() throws IOException {
+    private RestTemplate createRestTemplate() throws Exception {
+        final String username = "ganne";
+        final String password = "M0m1m0m1*";
+        final String proxyUrl = "http://172.30.46.82";
+        final int port = 8080;
+
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials( 
+                new AuthScope(proxyUrl, port), 
+                new UsernamePasswordCredentials(username, password));
+
+        HttpHost myProxy = new HttpHost(proxyUrl, port);
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+
+        clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider).disableCookieManagement();
+
+        HttpClient httpClient = clientBuilder.build();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setHttpClient(httpClient);
+
+        return new RestTemplate(factory);
+    }
+    
+    
+    public boolean checkAvailibility() throws IOException, Exception {
         //curl "http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Cookie: eZSESSID=9lp2b5rfmpn7eus77h094qu9b1; xtvrn=^$481980^$; xtan481980=-; xtant481980=1; cookies-accepte=oui" 
         //-H "Origin: http://www.val-de-marne.gouv.fr" 
@@ -43,32 +78,7 @@ public class Comp {
         //-H "Referer: http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Connection: keep-alive" 
         //--data "planning=5985^&nextButton=Etape+suivante" --compressed
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-httpclient.getCredentialsProvider().setCredentials(
-    new AuthScope("172.30.46.82", 8080),
-    new UsernamePasswordCredentials("ganne", "M0m1m0m1*"));
-
-//HttpHost targetHost = new HttpHost("TARGET HOST", 443, "https");
-HttpHost proxy = new HttpHost("172.30.46.82", 8080);
-        httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-        HttpHost proxy = new HttpHost("172.30.46.82:8080");
-        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(
-                HttpClientBuilder.create().setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
-                    @Override
-                    public HttpHost determineProxy(HttpHost target,
-                            HttpRequest request, HttpContext context)
-                                    throws HttpException {
-                       // if (target.getHostName().equals("192.168.0.5")) {
-                       //     return null;
-                       // }
-                        return super.determineProxy(target, request, context);
-                    }
-
-                }).build());
-        
-        //TODO: fix this at home
-        
-        RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
+        RestTemplate restTemplate = createRestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders headersPost = new HttpHeaders();
@@ -119,7 +129,7 @@ HttpHost proxy = new HttpHost("172.30.46.82", 8080);
         return ret;
     }
 
-    private boolean sendMail() throws IOException {
+    private boolean sendMail() throws IOException, Exception {
         if (checkAvailibility()) {
             System.out.println("+++++++++++++");
             final NameValuePair[] data = {
@@ -141,7 +151,7 @@ HttpHost proxy = new HttpHost("172.30.46.82", 8080);
     }
 
     @Scheduled(fixedRate = 10000 * 60)
-    public void sync() throws IOException {
+    public void sync() throws Exception {
         sendMail();
     }
 
