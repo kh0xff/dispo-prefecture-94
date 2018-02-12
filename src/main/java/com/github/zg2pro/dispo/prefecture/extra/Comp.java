@@ -2,6 +2,7 @@ package com.github.zg2pro.dispo.prefecture.extra;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -27,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Component
 public class Comp {
-    
+
     public boolean checkAvailibility() throws IOException {
         //curl "http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Cookie: eZSESSID=9lp2b5rfmpn7eus77h094qu9b1; xtvrn=^$481980^$; xtan481980=-; xtant481980=1; cookies-accepte=oui" 
@@ -60,7 +61,10 @@ public class Comp {
         headersPost.set("Referer", "http://www.val-de-marne.gouv.fr/booking/create/4963/1");
         headersPost.set("Connection", "keep-alive");
 
-        HttpEntity<String> entity = new HttpEntity<>("planning=5985^&nextButton=Etape+suivante", headersPost);
+        String[] guichets = new String[]{"5984", "5985", "5987"};
+        int randomNum = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+
+        HttpEntity<String> entity = new HttpEntity<>("planning=" + guichets[randomNum] + "^&nextButton=Etape+suivante", headersPost);
 
         ResponseEntity<String> resPost = restTemplate.postForEntity("http://www.val-de-marne.gouv.fr/booking/create/4963/1", entity, String.class);
 
@@ -94,7 +98,7 @@ public class Comp {
 
     private boolean sendMail() throws IOException {
         if (checkAvailibility()) {
-            //if (true) {
+            System.out.println("+++++++++++++");
             final NameValuePair[] data = {
                 new BasicNameValuePair("phone", "+33652942131"),
                 new BasicNameValuePair("message", "Hello world"),
@@ -107,17 +111,15 @@ public class Comp {
 
             String responseString = EntityUtils.toString(httpResponse.getEntity());
             System.out.println(responseString);
+        } else {
+            System.out.println("###############");
         }
         return true;
     }
-    
-    
-    
+
     @Scheduled(fixedRate = 10000 * 60)
-    public void sync() throws IOException{
-         System.out.println("###############");
-         sendMail();
+    public void sync() throws IOException {
+        sendMail();
     }
-    
-    
+
 }
