@@ -83,7 +83,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>zg2pro.LibraryBoot</mainClass>
+                            <mainClass>com.github.zg2pro.dispo.prefecture.Application</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
