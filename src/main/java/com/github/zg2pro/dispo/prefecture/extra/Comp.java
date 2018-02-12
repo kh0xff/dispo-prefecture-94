@@ -43,8 +43,31 @@ public class Comp {
         //-H "Referer: http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Connection: keep-alive" 
         //--data "planning=5985^&nextButton=Etape+suivante" --compressed
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+httpclient.getCredentialsProvider().setCredentials(
+    new AuthScope("172.30.46.82", 8080),
+    new UsernamePasswordCredentials("ganne", "M0m1m0m1*"));
+
+//HttpHost targetHost = new HttpHost("TARGET HOST", 443, "https");
+HttpHost proxy = new HttpHost("172.30.46.82", 8080);
+        httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        HttpHost proxy = new HttpHost("172.30.46.82:8080");
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(
-                HttpClientBuilder.create().build());
+                HttpClientBuilder.create().setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
+                    @Override
+                    public HttpHost determineProxy(HttpHost target,
+                            HttpRequest request, HttpContext context)
+                                    throws HttpException {
+                       // if (target.getHostName().equals("192.168.0.5")) {
+                       //     return null;
+                       // }
+                        return super.determineProxy(target, request, context);
+                    }
+
+                }).build());
+        
+        //TODO: fix this at home
+        
         RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
