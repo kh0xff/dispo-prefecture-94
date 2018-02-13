@@ -43,7 +43,7 @@ public class Comp {
     private RestTemplate createRestTemplate() throws Exception {
         final String username = "ganne";
         final String password = "M0m1m0m1*";
-        final String proxyUrl = "http://172.30.46.82";
+        final String proxyUrl = "http://172.30.46.82:8080";
         final int port = 8080;
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
