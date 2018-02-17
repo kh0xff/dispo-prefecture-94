@@ -1,4 +1,4 @@
-image: maven:3-jdk-8
+image: heroku
 cache:
   paths:
   - $HOME/.m2/
@@ -8,8 +8,8 @@ logs:
   stage: see
   script:
   - cp .netrc $HOME/
-  - sed -i.bak s/<your-api-key>/$HEROKU_API_KEY/g $HOME/.netrc
-  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  - sed -i.bak s/apikey/$HEROKU_API_KEY/g $HOME/.netrc
+  #- wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
   - heroku logs --tail
   only:
   - logs-trigger
