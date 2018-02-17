@@ -11,7 +11,7 @@ logs:
   - sed -i.bak s/apikey/$HEROKU_API_KEY/g $HOME/.netrc
   #- apt-get install wget
   - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
-  - heroku logs --tail --app dispo-prefecture-94
+  - heroku logs --app dispo-prefecture-94
   only:
   - logs-trigger
   tags:
