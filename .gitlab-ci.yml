@@ -5,6 +5,7 @@ cache:
 stages:
 - build
 - deploy
+- see
 build:
   stage: build
   script:
@@ -23,5 +24,8 @@ deploy:
   tags:
     - docker
 logs:
+  stage: see
   script:
   - heroku logs
+  tags:
+    - docker
