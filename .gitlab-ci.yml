@@ -18,8 +18,7 @@ build:
 deploy:
   stage: deploy
   script:
-  - gem install dpl
-  #- apt-get install dpl
+  - apt-get install dpl
   - dpl --provider=heroku --app=dispo-prefecture-94 --api-key=$HEROKU_API_KEY
   tags:
     - docker
