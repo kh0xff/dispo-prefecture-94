@@ -5,7 +5,6 @@ cache:
 stages:
 - build
 - deploy
-- see
 build:
   stage: build
   script:
@@ -26,16 +25,5 @@ deploy:
   - dpl --provider=heroku --app=dispo-prefecture-94 --api-key=$HEROKU_API_KEY
   only:
   - master
-  tags:
-    - docker
-logs:
-  stage: see
-  script:
-  - cp .netrc $HOME/
-  - sed -i.bak s/<your-api-key>/$HEROKU_API_KEY/g $HOME/.netrc
-  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
-  - heroku logs --tail
-  only:
-  - logs-trigger
   tags:
     - docker
