@@ -1,27 +1,21 @@
 package com.github.zg2pro.dispo.prefecture.extra;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +25,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -41,29 +36,31 @@ import org.springframework.web.client.RestTemplate;
 public class Comp {
 
     private RestTemplate createRestTemplate() throws Exception {
-        final String username = "ganne";
-        final String password = "M0m1m0m1*";
-        final String proxyUrl = "http://172.30.46.82:8080";
-        final int port = 8080;
-
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials( 
-                new AuthScope(proxyUrl, port), 
-                new UsernamePasswordCredentials(username, password));
-
-        HttpHost myProxy = new HttpHost(proxyUrl, port);
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-
-        clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider).disableCookieManagement();
-
-        HttpClient httpClient = clientBuilder.build();
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setHttpClient(httpClient);
-
-        return new RestTemplate(factory);
+//        final String username = "ganne";
+//        final String password = "*******";
+//        final String proxyUrl = "http://172.30.46.82:8080";
+//        final int port = 8080;
+//
+//        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+//        credsProvider.setCredentials( 
+//                new AuthScope(proxyUrl, port), 
+//                new UsernamePasswordCredentials(username, password));
+//
+//        HttpHost myProxy = new HttpHost(proxyUrl, port);
+//        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+//
+//        clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider).disableCookieManagement();
+//
+//        HttpClient httpClient = clientBuilder.build();
+//        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+//        factory.setHttpClient(httpClient);
+//
+//        return new RestTemplate(factory);
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(
+                HttpClientBuilder.create().build());
+        return new RestTemplate(clientHttpRequestFactory);
     }
-    
-    
+
     public boolean checkAvailibility() throws IOException, Exception {
         //curl "http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Cookie: eZSESSID=9lp2b5rfmpn7eus77h094qu9b1; xtvrn=^$481980^$; xtan481980=-; xtant481980=1; cookies-accepte=oui" 
@@ -130,6 +127,10 @@ public class Comp {
     }
 
     private boolean sendMail() throws IOException, Exception {
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd - hh:mm");
+        String currentTime = sdf.format(cal.getTime());
         if (checkAvailibility()) {
             System.out.println("+++++++++++++");
             final NameValuePair[] data = {
@@ -144,8 +145,12 @@ public class Comp {
 
             String responseString = EntityUtils.toString(httpResponse.getEntity());
             System.out.println(responseString);
+
+            lastPositiveAnswers.add(currentTime);
         } else {
             System.out.println("###############");
+            
+            lastWrongAnswers.add(currentTime);
         }
         return true;
     }
@@ -153,6 +158,15 @@ public class Comp {
     @Scheduled(fixedRate = 10000 * 60)
     public void sync() throws Exception {
         sendMail();
+    }
+
+    private List<String> lastPositiveAnswers = new ArrayList<>();
+    private List<String> lastWrongAnswers = new ArrayList<>();
+
+    @RequestMapping("/")
+    public String homePage() {
+        return "<b>we got positive answer at: " + lastPositiveAnswers + "</b><br/><br/>"
+                + "all wrong answers: " + lastWrongAnswers;
     }
 
 }
