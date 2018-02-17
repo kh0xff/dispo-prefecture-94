@@ -1,4 +1,4 @@
-image: heroku
+image: heroku/heroku
 cache:
   paths:
   - $HOME/.m2/
