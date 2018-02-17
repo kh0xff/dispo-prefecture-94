@@ -31,7 +31,10 @@ deploy:
 logs:
   stage: see
   script:
-  - heroku logs
+  - cp .netrc $HOME/
+  - sed -i.bak s/<your-api-key>/$HEROKU_API_KEY/g $HOME/.netrc
+  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  - heroku logs --tail
   only:
   - logs-trigger
   tags:
