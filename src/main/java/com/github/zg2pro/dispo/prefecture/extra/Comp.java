@@ -24,15 +24,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 /**
  *
  * @author zg2pro
  */
-@Component
+@Controller
 public class Comp {
 
     private RestTemplate createRestTemplate() throws Exception {
@@ -149,7 +151,7 @@ public class Comp {
             lastPositiveAnswers.add(currentTime);
         } else {
             System.out.println("###############");
-            
+
             lastWrongAnswers.add(currentTime);
         }
         return true;
@@ -163,8 +165,9 @@ public class Comp {
     private List<String> lastPositiveAnswers = new ArrayList<>();
     private List<String> lastWrongAnswers = new ArrayList<>();
 
-    @RequestMapping("/")
-    public String homePage() {
+    @RequestMapping(value = {"/", "/index", "index"}, method = RequestMethod.GET)
+    public @ResponseBody
+    String homePage() {
         return "<b>we got positive answer at: " + lastPositiveAnswers + "</b><br/><br/>"
                 + "all wrong answers: " + lastWrongAnswers;
     }
