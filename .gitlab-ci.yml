@@ -1,4 +1,4 @@
-image: heroku:latest
+image: ubuntu:latest
 cache:
   paths:
   - $HOME/.m2/
@@ -9,7 +9,7 @@ logs:
   script:
   - cp .netrc $HOME/
   - sed -i.bak s/apikey/$HEROKU_API_KEY/g $HOME/.netrc
-  #- wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
   - heroku logs --tail --app dispo-prefecture-94
   only:
   - logs-trigger
