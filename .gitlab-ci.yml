@@ -20,7 +20,9 @@ build:
 deploy:
   stage: deploy
   script:
-  - apt-get install dpl
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
   - dpl --provider=heroku --app=dispo-prefecture-94 --api-key=$HEROKU_API_KEY
   only:
   - master
