@@ -168,8 +168,13 @@ public class Comp {
     @RequestMapping(value = {"/", "/index", "index"}, method = RequestMethod.GET)
     public @ResponseBody
     String homePage() {
-        return "<b>we got positive answer at: " + lastPositiveAnswers + "</b><br/><br/>"
-                + "all wrong answers: " + lastWrongAnswers;
+        return "<html><head>"
+                + "<meta http-equiv=\"refresh\" content=\"50\"/>"
+                + "<title>Dispos Prefecture 94</title>"
+                + "</head><body>"
+                + "<b>we got positive answer at: " + lastPositiveAnswers + "</b><br/><br/>"
+                + "all wrong answers: " + lastWrongAnswers
+                + "</body></html>";
     }
 
 }
