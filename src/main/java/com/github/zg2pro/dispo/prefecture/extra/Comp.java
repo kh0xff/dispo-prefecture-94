@@ -63,7 +63,13 @@ public class Comp {
         return new RestTemplate(clientHttpRequestFactory);
     }
 
-    public boolean checkAvailibility() throws IOException, Exception {
+    class ResponseVdm {
+
+        int guichet;
+        boolean available;
+    }
+
+    public ResponseVdm checkAvailibility() throws IOException, Exception {
         //curl "http://www.val-de-marne.gouv.fr/booking/create/4963/1" 
         //-H "Cookie: eZSESSID=9lp2b5rfmpn7eus77h094qu9b1; xtvrn=^$481980^$; xtan481980=-; xtant481980=1; cookies-accepte=oui" 
         //-H "Origin: http://www.val-de-marne.gouv.fr" 
@@ -93,6 +99,7 @@ public class Comp {
         headersPost.set("Referer", "http://www.val-de-marne.gouv.fr/booking/create/4963/1");
         headersPost.set("Connection", "keep-alive");
 
+        int[] interfaceGuichets = new int[]{1, 2, 4};
         String[] guichets = new String[]{"5984", "5985", "5987"};
         int randomNum = ThreadLocalRandom.current().nextInt(0, 2 + 1);
 
@@ -124,8 +131,11 @@ public class Comp {
 
         String body = resGet.getBody();
 
-        boolean ret = !body.contains("plus de plage horaire");
-        return ret;
+        ResponseVdm rv = new ResponseVdm();
+        rv.guichet = interfaceGuichets[randomNum];
+        rv.available = !body.contains("plus de plage horaire");
+
+        return rv;
     }
 
     private boolean sendMail() throws IOException, Exception {
@@ -134,8 +144,8 @@ public class Comp {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd - hh:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("CET"));
         String currentTime = sdf.format(cal.getTime());
-        if (checkAvailibility()) {
-            System.out.println("+++++++++++++");
+        ResponseVdm rv = checkAvailibility();
+        if (rv.available) {
             final NameValuePair[] data = {
                 new BasicNameValuePair("phone", "+33652942131"),
                 new BasicNameValuePair("message", "Hello world"),
@@ -149,11 +159,14 @@ public class Comp {
             String responseString = EntityUtils.toString(httpResponse.getEntity());
             System.out.println(responseString);
 
-            lastPositiveAnswers.add(currentTime);
+            String respStr = "[" + currentTime + "/" + rv.guichet + "]";
+            System.out.println("+++++++++++++" + respStr);
+            lastPositiveAnswers.add(respStr);
         } else {
-            System.out.println("###############");
+            String respStr = "[" + currentTime + "/" + rv.guichet + "]";
+            System.out.println("######AVAILABLE!!!#####" + respStr);
 
-            lastWrongAnswers.add(currentTime);
+            lastWrongAnswers.add(respStr);
         }
         return true;
     }
