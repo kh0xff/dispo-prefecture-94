@@ -130,8 +130,9 @@ public class Comp {
 
     private boolean sendMail() throws IOException, Exception {
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd - hh:mm");
+        sdf.setTimeZone("CET");
         String currentTime = sdf.format(cal.getTime());
         if (checkAvailibility()) {
             System.out.println("+++++++++++++");
