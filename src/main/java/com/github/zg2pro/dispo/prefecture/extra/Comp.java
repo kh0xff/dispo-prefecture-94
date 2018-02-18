@@ -159,19 +159,19 @@ public class Comp {
             String responseString = EntityUtils.toString(httpResponse.getEntity());
             System.out.println(responseString);
 
-            String respStr = "[" + currentTime + "/" + rv.guichet + "]";
+            String respStr = "[" + currentTime + " / guichet " + rv.guichet + "]";
             System.out.println("+++++++++++++" + respStr);
-            lastPositiveAnswers.add(respStr);
+            lastPositiveAnswers.add(0, respStr);
         } else {
-            String respStr = "[" + currentTime + "/" + rv.guichet + "]";
+            String respStr = "[" + currentTime + " / guichet " + rv.guichet + "]";
             System.out.println("######AVAILABLE!!!#####" + respStr);
 
-            lastWrongAnswers.add(respStr);
+            lastWrongAnswers.add(0, respStr);
         }
         return true;
     }
 
-    @Scheduled(fixedRate = 10000 * 60)
+    @Scheduled(fixedRate = 6000 * 60)
     public void sync() throws Exception {
         sendMail();
     }
