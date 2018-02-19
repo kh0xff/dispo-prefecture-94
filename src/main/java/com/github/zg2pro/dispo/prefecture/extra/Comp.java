@@ -176,8 +176,21 @@ public class Comp {
         sendMail();
     }
 
-    private List<String> lastPositiveAnswers = new ArrayList<>();
-    private List<String> lastWrongAnswers = new ArrayList<>();
+    class Stack<T> extends ArrayList<T> {
+
+        @Override
+        public boolean add(T e) {
+            if (size() > 100) {
+                removeRange(50, 99);//keep last
+            }
+            add(0, e);
+            return true;
+        }
+
+    }
+
+    private List<String> lastPositiveAnswers = new Stack<>();
+    private List<String> lastWrongAnswers = new Stack<>();
 
     @RequestMapping(value = {"/", "/index", "index"}, method = RequestMethod.GET)
     public @ResponseBody
