@@ -147,7 +147,7 @@ public class Comp {
         ResponseVdm rv = checkAvailibility();
         if (rv.available) {
             final NameValuePair[] data = {
-                new BasicNameValuePair("phone", "+33612345678"),
+                new BasicNameValuePair("phone", "+33660656666"),
                 new BasicNameValuePair("message", "Hello world"),
                 new BasicNameValuePair("key", "textbelt")
             };
